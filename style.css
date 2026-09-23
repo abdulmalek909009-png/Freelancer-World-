@@ -61,3 +61,8 @@ nav.un{display:grid;grid-template-columns:repeat(5,1fr);align-items:end;padding:
 nav.un button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;padding:4px 0;background:none;color:var(--mut);border-radius:0}
 nav.un button.on{background:none;color:var(--v)}
 nav.un button[data-t=home]{margin-top:-34px;width:62px;height:62px;justify-content:center;justify-self:center;border-radius:50%;background:linear-gradient(135deg,var(--v),var(--p));color:#fff;border:5px solid #fff;box-shadow:0 8px 22px #6c3cf066;padding:0}
+.sf{border-left:0;--ac:#6c3cf0}.sf h3{font-size:19px}.rate{background:var(--ac);color:#fff;font-weight:800;padding:6px 14px;border-radius:99px;font-size:13px}
+.pbox{border:2px dashed var(--ac);background:#f7f5ff;border-radius:16px;padding:12px;margin:14px 0}.pbox small{font-weight:700}.pbox .row{background:#fff;border-radius:12px;padding:8px 10px;margin-top:8px;flex-wrap:nowrap}.pbox b{color:var(--ac);word-break:break-all}
+.cp{border:0;background:var(--ac,var(--v));color:#fff;font:inherit;font-weight:800;font-size:12px;padding:7px 12px;border-radius:8px;flex:none}
+.sf label,.card>label{display:block;font-weight:700;margin-top:10px}.sf .sb{width:100%;margin-top:14px;background:var(--ac);padding:15px;font-size:16px}
+.kv{display:flex;gap:8px;align-items:center;background:var(--bg);border-radius:12px;padding:8px 10px;margin:6px 0}.kv span{font-size:12px;color:var(--mut);min-width:64px}.kv b{flex:1;word-break:break-all;font-size:13px;max-height:64px;overflow:hidden}
