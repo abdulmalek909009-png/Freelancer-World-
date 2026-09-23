@@ -1,0 +1,30 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin · Freelancer World</title><link rel="stylesheet" href="style.css"></head><body><div id="app"></div>
+<script type="module">
+import {auth,db,$,money,esc,ADMIN_EMAIL} from "./firebase-config.js";
+import {onAuthStateChanged,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {collection,doc,addDoc,deleteDoc,onSnapshot,updateDoc,increment,serverTimestamp,writeBatch} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+let D={jobs:[],submissions:[],withdrawals:[],users:[],notices:[]},tab="submissions",un=[];const app=$("#app");
+const T=[["submissions","Submissions"],["withdrawals","Withdrawals"],["jobs","Jobs"],["notice","Send notice"],["users","Users"]];
+function login(msg=""){app.innerHTML=`<div class="auth"><div class="logo">Admin Panel</div><div class="card"><input id="e" type="email" placeholder="Admin email"><input id="p" type="password" placeholder="Password"><button class="b" id="li" style="width:100%;margin-top:8px">Log in</button><p style="color:#ef4565">${msg}</p></div></div>`;$("#li").onclick=()=>signInWithEmailAndPassword(auth,$("#e").value,$("#p").value).catch(x=>login(x.code))}
+const pend=k=>D[k].filter(x=>x.status=="pending").length;
+function draw(){app.innerHTML=`<header><h1>⚙️ Admin · Freelancer World</h1><button class="b o" id="out">Log out</button></header><nav>${T.map(([k,l])=>`<button data-t="${k}" class="${tab==k?"on":""}">${l}${D[k]&&k!="users"&&k!="jobs"&&pend(k)?" ("+pend(k)+")":""}</button>`).join("")}</nav><main>${view()}</main>`;
+$("#out").onclick=()=>signOut(auth);document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});
+document.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>act(b.dataset.a,b.dataset.id));
+if($("#nj"))$("#nj").onclick=addJob;if($("#sn"))$("#sn").onclick=sendNote}
+function view(){
+if(tab=="submissions")return D.submissions.map(s=>`<div class="card"><div class="row"><h3>${esc(s.jobTitle)}</h3><span class="pill ${s.status}">${s.status}</span></div><p class="mut">${esc(s.name)} · ${money(s.reward)}</p><p>${esc(s.proof)}</p>${s.status=="pending"?`<button class="b g" data-a="ok" data-id="${s.id}">Approve & pay</button> <button class="b r" data-a="no" data-id="${s.id}">Reject</button>`:""}</div>`).join("")||"<p class='mut'>Nothing here.</p>";
+if(tab=="withdrawals")return D.withdrawals.map(w=>`<div class="card"><div class="row"><h3>Send ${money(w.net)}</h3><span class="pill ${w.status}">${w.status}</span></div><p class="mut">${esc(w.name)} · requested ${money(w.amount)} · fee ${money(w.fee)}</p><p><b>PayPal:</b> ${esc(w.paypal)}</p>${w.status=="pending"?`<button class="b g" data-a="paid" data-id="${w.id}">Mark paid</button> <button class="b r" data-a="refund" data-id="${w.id}">Reject & refund</button>`:""}</div>`).join("")||"<p class='mut'>Nothing here.</p>";
+if(tab=="jobs")return`<div class="card"><h3>Post a job</h3><input id="jt" placeholder="Job title"><input id="jc" placeholder="Category (e.g. Design, Writing)"><input id="jr" type="number" step="0.01" placeholder="Reward in USD"><textarea id="jd" rows="3" placeholder="Job description"></textarea><button class="b" id="nj">Post job</button></div>`+D.jobs.map(j=>`<div class="card"><div class="row"><h3>${esc(j.title)}</h3><span class="price">${money(j.reward)}</span></div><button class="b r" data-a="dj" data-id="${j.id}">Delete</button></div>`).join("");
+if(tab=="notice")return`<div class="card"><h3>Send notice to all users</h3><textarea id="nt" rows="4" placeholder="Write your message. Users see it under the bell icon."></textarea><button class="b" id="sn">Send notice</button></div>`+D.notices.map(n=>`<div class="card"><p>${esc(n.text)}</p><button class="b r" data-a="dn" data-id="${n.id}">Delete</button></div>`).join("");
+return D.users.map(u=>`<div class="card"><div class="row"><b>${esc(u.name)}</b><span class="price">${money(u.balance)}</span></div><p class="mut">${esc(u.email)}</p></div>`).join("")}
+async function act(a,id){const s=D.submissions.find(x=>x.id==id),w=D.withdrawals.find(x=>x.id==id);
+if(a=="ok"){const b=writeBatch(db);b.update(doc(db,"submissions",id),{status:"approved"});b.update(doc(db,"users",s.uid),{balance:increment(s.reward)});await b.commit()}
+if(a=="no")await updateDoc(doc(db,"submissions",id),{status:"rejected"});
+if(a=="paid")await updateDoc(doc(db,"withdrawals",id),{status:"paid"});
+if(a=="refund"){const b=writeBatch(db);b.update(doc(db,"withdrawals",id),{status:"rejected"});b.update(doc(db,"users",w.uid),{balance:increment(w.amount)});await b.commit()}
+if(a=="dj")await deleteDoc(doc(db,"jobs",id));if(a=="dn")await deleteDoc(doc(db,"notices",id))}
+async function addJob(){const t=$("#jt").value.trim(),r=+$("#jr").value;if(!t||!r)return alert("Title and reward required");await addDoc(collection(db,"jobs"),{title:t,category:$("#jc").value,reward:r,desc:$("#jd").value,createdAt:serverTimestamp()})}
+async function sendNote(){const t=$("#nt").value.trim();if(t){await addDoc(collection(db,"notices"),{text:t,createdAt:serverTimestamp()});alert("Sent to all users!")}}
+onAuthStateChanged(auth,u=>{un.forEach(f=>f());un=[];if(!u)return login();if(u.email!=ADMIN_EMAIL){signOut(auth);return login("This account is not an admin.")}
+un=Object.keys(D).map(k=>onSnapshot(collection(db,k),s=>{D[k]=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));draw()}))})
+</script></body></html>
