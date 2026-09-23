@@ -22,3 +22,15 @@ nav button{border:0;background:0;font:inherit;font-size:12px;font-weight:700;col
 .modal{position:fixed;inset:0;background:#1b174099;display:flex;align-items:flex-end;justify-content:center;z-index:9}.modal>div{background:#fff;width:100%;max-width:640px;max-height:80vh;overflow:auto;border-radius:24px 24px 0 0;padding:20px}
 .auth{max-width:380px;margin:9vh auto;padding:0 16px;text-align:center}.auth .logo{font-size:34px;font-weight:800;background:linear-gradient(120deg,var(--v),var(--p));-webkit-background-clip:text;color:transparent}
 .hero{background:linear-gradient(135deg,var(--c),var(--v));color:#fff;border-radius:20px;padding:20px;margin-bottom:14px}.hero big{display:block;font-size:34px;font-weight:800}
+.modal.c{align-items:center;padding:20px}.modal.c>div{border-radius:28px;text-align:center;max-width:360px;padding:30px 22px;position:relative;overflow:hidden;animation:pop .45s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.tick{width:104px;height:104px;margin:0 auto 14px;position:relative}.tick:before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--g);opacity:.25;animation:ring 1.6s ease-out infinite}
+.tick svg{position:relative;width:104px;height:104px;filter:drop-shadow(0 8px 16px #18c98a66)}
+.tick circle{fill:var(--g);transform-origin:center;animation:pop .5s .1s both}.tick path{fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;animation:draw .5s .5s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}@keyframes ring{from{transform:scale(.8);opacity:.45}to{transform:scale(1.5);opacity:0}}
+.ok-box h2{font-size:22px;background:linear-gradient(120deg,var(--v),var(--p));-webkit-background-clip:text;color:transparent}
+.sum{background:var(--bg);border-radius:16px;padding:12px 14px;margin:14px 0;text-align:left}.sum div{display:flex;justify-content:space-between;padding:4px 0}.sum .big{font-weight:800;color:var(--g);font-size:17px;border-top:2px dashed #e2ddff;margin-top:4px;padding-top:8px}
+.conf i{position:absolute;top:-10px;width:9px;height:14px;border-radius:3px;animation:fall 2.4s ease-in infinite}
+@keyframes fall{to{transform:translateY(420px) rotate(540deg);opacity:0}}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#ef4565;color:#fff;font-weight:700;padding:12px 20px;border-radius:14px;z-index:20;box-shadow:0 8px 24px #ef456555;animation:pop .3s}
+@media(prefers-reduced-motion:reduce){.conf,.tick:before{display:none}.tick path{stroke-dashoffset:0;animation:none}}
