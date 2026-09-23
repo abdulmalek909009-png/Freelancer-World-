@@ -34,3 +34,9 @@ nav button{border:0;background:0;font:inherit;font-size:12px;font-weight:700;col
 @keyframes fall{to{transform:translateY(420px) rotate(540deg);opacity:0}}
 .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#ef4565;color:#fff;font-weight:700;padding:12px 20px;border-radius:14px;z-index:20;box-shadow:0 8px 24px #ef456555;animation:pop .3s}
 @media(prefers-reduced-motion:reduce){.conf,.tick:before{display:none}.tick path{stroke-dashoffset:0;animation:none}}
+header h1{font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tile{position:relative;border:0;background:#fff;border-radius:18px;padding:10px 2px;font:inherit;font-weight:700;font-size:11.5px;color:var(--ink);box-shadow:0 4px 14px #6c3cf01a;display:flex;flex-direction:column;align-items:center;gap:6px}
+.tile span{font-size:26px;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:#e8f1ff}
+.tile:nth-child(3n+2) span{background:#ffe8f1}.tile:nth-child(3n) span{background:#e3faf0}
+.tile em{position:absolute;top:2px;right:6px;font-size:13px;font-style:normal}
