@@ -46,3 +46,18 @@ header{flex-direction:column;align-items:stretch;gap:12px;padding:12px 16px 16px
 .tick2{display:flex;gap:10px;align-items:center;background:#fff;border-radius:99px;padding:8px 10px;margin-bottom:12px;box-shadow:0 4px 14px #6c3cf01a}.tick2 b{background:var(--v);color:#fff;border-radius:99px;padding:3px 12px;font-size:13px}.tick2 div{overflow:hidden;flex:1;white-space:nowrap}.tick2 span{display:inline-block;padding-left:100%;animation:mq 14s linear infinite}@keyframes mq{to{transform:translateX(-100%)}}
 .pj{border-left:0}nav{overflow:visible;align-items:flex-end}
 nav button[data-t=home]{margin-top:-30px;width:68px;height:68px;padding:0;border-radius:50%;background:linear-gradient(120deg,var(--v),var(--p));color:#fff;border:5px solid #fff;box-shadow:0 8px 20px #6c3cf055}
+.card,.card:nth-child(3n+2),.card:nth-child(3n){border-left:0}
+header .bell{display:grid;place-items:center;color:#fff}
+.vt{width:17px;height:17px;vertical-align:-3px;margin-left:4px}
+.grid{gap:16px 6px}.tile{background:none;box-shadow:none;padding:4px 0;font-weight:600;font-size:12px}
+.tile span{width:58px;height:58px;border-radius:18px;background:none;overflow:hidden;box-shadow:0 8px 16px #1b17402b;color:#fff}
+.tile span svg{color:#fff}.tile span img{width:100%;height:100%;object-fit:contain}
+.tile.lk span{filter:grayscale(.9);opacity:.55}.tile em{background:var(--ink);color:#fff;border-radius:50%;width:20px;height:20px;display:grid;place-items:center;top:0;right:10px}
+.dd button{display:flex;gap:10px;align-items:center}
+.bn{position:relative;overflow:hidden;border-radius:20px;margin-bottom:12px;box-shadow:0 8px 22px #6c3cf033}.bt{display:flex;transition:transform .6s ease}.bt img{width:100%;flex:none;aspect-ratio:900/340;object-fit:cover;display:block}
+.dots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:5px}.dots i{width:6px;height:6px;border-radius:3px;background:#fff9;transition:.3s}.dots i.on{width:18px;background:#fff}
+nav:not(.un){overflow-x:auto;align-items:center}
+nav.un{display:grid;grid-template-columns:repeat(5,1fr);align-items:end;padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px))}
+nav.un button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;padding:4px 0;background:none;color:var(--mut);border-radius:0}
+nav.un button.on{background:none;color:var(--v)}
+nav.un button[data-t=home]{margin-top:-34px;width:62px;height:62px;justify-content:center;justify-self:center;border-radius:50%;background:linear-gradient(135deg,var(--v),var(--p));color:#fff;border:5px solid #fff;box-shadow:0 8px 22px #6c3cf066;padding:0}
