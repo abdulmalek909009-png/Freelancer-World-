@@ -47,7 +47,15 @@ function pickName(k){let h=0;for(const c of k)h=(h*31+c.charCodeAt(0))>>>0;retur
 function agentOn(){return agent.auto?isLiveWindow():!!agent.on}
 function agentName(){return agent.auto?pickName(windowKey()):(agent.name||"Support")}
 let agent={},chat={},cmsgs=[],stars=0,cOn=0,lead=null,lday="",lToday=1;
-function ensureChat(){if(cOn)return;cOn=1;un.push(onSnapshot(doc(db,"chats",U.uid),x=>{chat=x.data()||{};draw()}),onSnapshot(query(collection(db,"chats",U.uid,"msgs"),orderBy("createdAt")),x=>{cmsgs=x.docs.map(d=>d.data());draw()}))}
+let handoffLock=0;
+async function chatAutoFlow(){if(!U||!cOn||handoffLock)return;
+if(chat.mode=="human"&&agent.busyWith==U.uid&&!chat.humanWelcomed){handoffLock=1;
+try{await setDoc(doc(db,"chats",U.uid),{humanWelcomed:true},{merge:true});await addDoc(collection(db,"chats",U.uid,"msgs"),{from:"admin",text:`Hi, I'm ${agentName()}! Thanks for waiting — how can I help you today?`,createdAt:serverTimestamp()})}catch(e){console.error("handoff welcome failed",e)}
+handoffLock=0;return}
+if(chat.mode=="human"&&chat.status=="closed"){handoffLock=1;
+try{await setDoc(doc(db,"chats",U.uid),{mode:"bot",asks:0,humanWelcomed:false},{merge:true})}catch(e){console.error("handoff reset failed",e)}
+handoffLock=0}}
+function ensureChat(){if(cOn)return;cOn=1;un.push(onSnapshot(doc(db,"chats",U.uid),x=>{chat=x.data()||{};chatAutoFlow();draw()}),onSnapshot(query(collection(db,"chats",U.uid,"msgs"),orderBy("createdAt")),x=>{cmsgs=x.docs.map(d=>d.data());draw()}))}
 let ttU=0;
 function typingPing(){clearTimeout(ttU);setDoc(doc(db,"chats",U.uid),{userTyping:Date.now()},{merge:true});ttU=setTimeout(()=>setDoc(doc(db,"chats",U.uid),{userTyping:0},{merge:true}),2500)}
 const BOT_NAME="Assistant";
@@ -79,7 +87,7 @@ await addDoc(msgs,{from:"user",text:t,createdAt:serverTimestamp()});
 if(mode=="human")return;
 if(first)await addDoc(msgs,{from:"bot",text:`Welcome to Freelancer World! I'm ${BOT_NAME} 🤖. How can I help you with information about our services today?`,createdAt:serverTimestamp()});
 if(!HOWTO_RE.test(t)&&isSupportReq(t)){const asks=(chat.asks||0)+1;
-if(asks>=3){await addDoc(msgs,{from:"sys",text:"Connecting you to our support team. Please wait for an available agent.",createdAt:serverTimestamp()});await setDoc(cd,{mode:"human",status:"waiting",asks:0},{merge:true})}
+if(asks>=3){await addDoc(msgs,{from:"sys",text:"Connecting you to our support team. Please wait for an available agent.",createdAt:serverTimestamp()});await setDoc(cd,{mode:"human",status:"waiting",asks:0,humanWelcomed:false},{merge:true})}
 else{await addDoc(msgs,{from:"bot",text:`Got it — I'll connect you with our support team (${asks}/3). Ask once more and I'll transfer you to a live agent. Meanwhile I'm happy to share rates or job status!`,createdAt:serverTimestamp()});await setDoc(cd,{asks},{merge:true})}
 return}
 if(chat.asks)await setDoc(cd,{asks:0},{merge:true});
@@ -164,7 +172,7 @@ const q=(c,w)=>query(collection(db,c),...w);
 un=[onSnapshot(doc(db,"users",u.uid),s=>{me=s.data()||me;draw();hideSplash()}),
 onSnapshot(q("jobs",[orderBy("createdAt","desc")]),s=>{jobs=s.docs.map(d=>({id:d.id,...d.data()}));draw()}),
 onSnapshot(query(collection(db,"banners"),orderBy("createdAt","asc")),s=>{bans={home:[]};s.docs.forEach(d=>{const v=d.data();if(v.page=="home")bans.home.push(v.img);else bans[v.page]=v.img});draw()}),
-onSnapshot(collection(db,"icons"),s=>{icons={};locks=[];agent={};s.docs.forEach(d=>{if(d.id=="_locks")locks=d.data().list||[];else if(d.id=="_cfg")cfg=d.data();else if(d.id=="_agent")agent=d.data();else if(d.id=="_theme"){const th=d.data();Object.entries(th).forEach(([k,v])=>document.documentElement.style.setProperty("--"+k,v))}else icons[d.id]=d.data().img});draw()}),
+onSnapshot(collection(db,"icons"),s=>{icons={};locks=[];agent={};s.docs.forEach(d=>{if(d.id=="_locks")locks=d.data().list||[];else if(d.id=="_cfg")cfg=d.data();else if(d.id=="_agent")agent=d.data();else if(d.id=="_theme"){const th=d.data();Object.entries(th).forEach(([k,v])=>document.documentElement.style.setProperty("--"+k,v))}else icons[d.id]=d.data().img});chatAutoFlow();draw()}),
 onSnapshot(q("notices",[orderBy("createdAt","desc")]),s=>{notes=s.docs.map(d=>d.data());draw()}),
 onSnapshot(q("submissions",[where("uid","==",u.uid)]),s=>{subs=s.docs.map(d=>d.data()).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));draw()}),
 onSnapshot(q("withdrawals",[where("uid","==",u.uid)]),s=>{wds=s.docs.map(d=>d.data()).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));draw()})]})
