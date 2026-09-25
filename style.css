@@ -88,6 +88,7 @@ select{width:100%;font:inherit;padding:11px 13px;border:2px solid #e2ddff;border
 .rv{padding:12px 16px;text-align:center;background:#fff}.stars button{border:0;background:none;font-size:30px;color:#d1d5db}.stars button.on{color:#f5b700}
 .avt.sm{width:38px;height:38px;font-size:15px;background:var(--v);color:#fff}.cl2{cursor:pointer}
 button{touch-action:manipulation}
+input[type=color]{cursor:pointer;border-radius:10px}
 .ul{margin:8px 0 8px 22px}.mq{font-size:36px;font-weight:800;text-align:center;margin:16px 0}
 .gg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}.gc{aspect-ratio:1;border:0;border-radius:14px;background:linear-gradient(135deg,var(--v),var(--p));font-size:28px}.gc.on{background:#f3f0ff}
 .ld{display:flex;align-items:center;gap:12px}.rk{font-weight:800;font-size:18px;color:var(--mut)}.ld svg{margin-left:auto;color:#b7791f}
