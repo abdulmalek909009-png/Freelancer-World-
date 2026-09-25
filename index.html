@@ -52,26 +52,39 @@ let ttU=0;
 function typingPing(){clearTimeout(ttU);setDoc(doc(db,"chats",U.uid),{userTyping:Date.now()},{merge:true});ttU=setTimeout(()=>setDoc(doc(db,"chats",U.uid),{userTyping:0},{merge:true}),2500)}
 const BOT_NAME="Assistant";
 const BOT_TYPES=[["gmail","Gmail",["gmail","google mail","জিমেইল"]],["facebook","Facebook",["facebook","fb","ফেসবুক","ফেইসবুক"]],["instagram","Instagram",["instagram","insta","ig","ইনস্টাগ্রাম"]],["math","Math Earn",["math earn","math","গণিত","ম্যাথ"]],["micro","Micro Job",["micro job","microjob","micro","মাইক্রো"]]];
-const SUPPORT_WORDS=["customer support","live agent","real agent","talk to agent","human agent","talk to human","real person","speak to someone","moderator","কাস্টমার সাপোর্ট","কাস্টমার সাপোর্ট","সাপোর্ট টিম","এজেন্ট","মডারেটর","মানুষের সাথে","মানুষ চাই"];
+const SUPPORT_WORDS=["customer support","live agent","real agent","talk to agent","human agent","talk to human","real person","speak to someone","moderator","কাস্টমার সাপোর্ট","সাপোর্ট টিম","এজেন্ট","মডারেটর","মানুষের সাথে","মানুষ চাই"];
+const GREET_WORDS=["hi","hello","hey","salam","assalamu","আসসালামু","কেমন আছেন","কেমন আছো","কেমন আছিস","hlw","হ্যালো","হাই"];
+const HOWTO_RE=/\b(how (do|can|to)|kivabe|kemne|কিভাবে)\b[\s\S]*\b(support|contact|talk|reach|জোগাজোগ|যোগাযোগ|কথা বল)/i;
+const XP_WORDS=["experience","অভিজ্ঞতা","how are you","kemon acen","কেমন আছেন আপনি","কেমন লাগে"];
+const BEST_WORDS=["best offer","best deal","top offer","best option","which is best","সেরা অফার","ভালো অফার","সবচেয়ে ভালো","কোনটা ভালো","কোন কাজ ভালো"];
+const REFER_WORDS=["refer","referral","রেফার","invite friend","রেফারেল"];
 function isSupportReq(t){const tl=t.toLowerCase();return SUPPORT_WORDS.some(w=>tl.includes(w.toLowerCase()))}
+function bestType(){return BOT_TYPES.reduce((a,b)=>rate(b[0])>rate(a[0])?b:a)}
 function botAnswer(t){const tl=t.toLowerCase();
+if(GREET_WORDS.some(w=>tl.includes(w)))return`Hello! I'm doing great, thanks for asking 🙂 I'm the virtual Assistant here at Freelancer World. I can tell you our current rates, which jobs are open right now, or the best way to earn here. What would you like to know?`;
+if(HOWTO_RE.test(t))return`To talk with our human support team, just type "customer support" 2–3 times here and I'll connect you with a live agent.`;
+if(XP_WORDS.some(w=>tl.includes(w)))return`I'm just a virtual assistant, so I don't have personal work experience 🙂 — but I can tell you which tasks are open right now and their rates, or help you get started. Want me to list them?`;
+if(BEST_WORDS.some(w=>tl.includes(w))){const bt=bestType();return`Right now our best opportunities are:\n💌 ${bt[1]} — our highest paying task at ${money(rate(bt[0]))} per submission\n👥 Refer friends — earn 10% commission on everything they earn, added to your balance automatically!\nWant me to share all our rates, or your referral link?`}
+if(REFER_WORDS.some(w=>tl.includes(w)))return`You earn 10% commission on your referral's income, added to your balance automatically! Go to the Refer section from the menu to get your personal invite link.`;
 const hit=BOT_TYPES.find(([k,n,al])=>al.some(a=>tl.includes(a)));
 if(hit){const[k,n]=hit,isOn=!locks.includes(n);return`${n} — current rate is ${money(rate(k))} per submission. This job is currently ${isOn?"OPEN ✅":"CLOSED ⛔"}.`}
 if(/rate|price|list|all services|how much/.test(tl))return"Here are our current rates & status:\n"+BOT_TYPES.map(([k,n])=>`• ${n}: ${money(rate(k))} — ${locks.includes(n)?"Closed":"Open"}`).join("\n");
 if(/open|close|status|active/.test(tl))return"Here's what's open right now:\n"+BOT_TYPES.map(([k,n])=>`• ${n}: ${locks.includes(n)?"Closed":"Open"}`).join("\n");
-return`I can share our current rates and which jobs are open or closed. Ask me about Gmail, Facebook, Instagram, Math Earn or Micro Job — or type "customer support" if you'd like to talk with our team.`}
+return`Sorry, I couldn't quite understand that 🙏 Could you please ask using simpler words? As an assistant, I can only share information about Freelancer World — our rates, which jobs are open or closed, and referral rewards. If you'd like to talk to a real person, type "customer support".`}
 async function send(){const t=$("#f_msg").value.trim();if(!t)return;$("#f_msg").value="";clearTimeout(ttU);
 const first=!cmsgs.length,mode=chat.mode||"bot",msgs=collection(db,"chats",U.uid,"msgs"),cd=doc(db,"chats",U.uid);
+try{
 await setDoc(cd,{uid:U.uid,name:me.name||"",status:chat.status=="active"?"active":"waiting",last:t,review:null,userTyping:0,updatedAt:serverTimestamp()},{merge:true});
 await addDoc(msgs,{from:"user",text:t,createdAt:serverTimestamp()});
 if(mode=="human")return;
 if(first)await addDoc(msgs,{from:"bot",text:`Welcome to Freelancer World! I'm ${BOT_NAME} 🤖. How can I help you with information about our services today?`,createdAt:serverTimestamp()});
-if(isSupportReq(t)){const asks=(chat.asks||0)+1;
+if(!HOWTO_RE.test(t)&&isSupportReq(t)){const asks=(chat.asks||0)+1;
 if(asks>=3){await addDoc(msgs,{from:"sys",text:"Connecting you to our support team. Please wait for an available agent.",createdAt:serverTimestamp()});await setDoc(cd,{mode:"human",status:"waiting",asks:0},{merge:true})}
 else{await addDoc(msgs,{from:"bot",text:`Got it — I'll connect you with our support team (${asks}/3). Ask once more and I'll transfer you to a live agent. Meanwhile I'm happy to share rates or job status!`,createdAt:serverTimestamp()});await setDoc(cd,{asks},{merge:true})}
 return}
 if(chat.asks)await setDoc(cd,{asks:0},{merge:true});
-await addDoc(msgs,{from:"bot",text:botAnswer(t),createdAt:serverTimestamp()})}
+await addDoc(msgs,{from:"bot",text:botAnswer(t),createdAt:serverTimestamp()})
+}catch(e){console.error("chat send failed",e);toast("Message failed to send. Please check your connection.")}}
 async function sendReview(){if(!stars)return toast("Please choose a rating.");await updateDoc(doc(db,"chats",U.uid),{review:{stars,text:$("#f_rv").value.trim()}});stars=0}
 let leadInit=0;
 function fmtDay(k){return new Date(k+"T00:00:00").toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})}
