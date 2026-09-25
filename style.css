@@ -74,11 +74,11 @@ select{width:100%;font:inherit;padding:11px 13px;border:2px solid #e2ddff;border
 .dot{width:12px;height:12px;border-radius:50%;background:#cbd5e1;flex:none}.dot.live{background:#22e58f;animation:lv 1.6s infinite}@keyframes lv{0%{box-shadow:0 0 0 0 #22e58f88}70%{box-shadow:0 0 0 10px #22e58f00}}
 .msgs{height:50vh;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
 .ch{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 4px 18px #6c3cf01a;margin-bottom:12px}
-.m{max-width:78%;padding:9px 13px 15px;border-radius:18px;word-break:break-word;position:relative;font-size:14px;line-height:1.35;animation:mp .25s ease}
+.m{max-width:78%;padding:8px 12px;border-radius:18px;word-break:break-word;white-space:pre-wrap;font-size:14px;line-height:1.4;animation:mp .25s ease;display:flex;flex-wrap:wrap;align-items:flex-end;column-gap:8px;row-gap:2px}
 @keyframes mp{from{transform:translateY(6px) scale(.97);opacity:0}to{transform:none;opacity:1}}
 .m.me{align-self:flex-end;background:linear-gradient(120deg,var(--v),var(--p));color:#fff;border-bottom-right-radius:4px}
 .m.them{align-self:flex-start;background:#fff;color:var(--ink);border-bottom-left-radius:4px;box-shadow:0 2px 8px #6c3cf01a}
-.m i{position:absolute;bottom:3px;right:12px;font-size:10px;font-style:normal;opacity:.65}
+.m i{font-size:10px;font-style:normal;opacity:.65;white-space:nowrap;flex-shrink:0;margin-left:auto;padding-bottom:1px}
 .m.me i{color:#fffc}.m.them i{color:var(--mut)}
 .m.typing{display:flex;gap:4px;padding:14px 16px;align-items:center}
 .m.typing span{width:7px;height:7px;border-radius:50%;background:var(--mut);opacity:.5;animation:tb 1.2s infinite}
