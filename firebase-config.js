@@ -8,5 +8,5 @@ export const ADMIN_EMAIL="mmbnb2022@gmail.com";
 const app=initializeApp(cfg);
 export const auth=getAuth(app), db=getFirestore(app);
 export const $=s=>document.querySelector(s);
-export const money=n=>"$"+Number(n||0).toFixed(2);
+export const money=n=>"$"+Number(n||0).toFixed(4);
 export const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
