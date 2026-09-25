@@ -38,7 +38,7 @@ async function sendForm(){const F=FORMS[tab],d={};for(const [k] of F.f){const v=
 await addDoc(collection(db,"submissions"),{uid:U.uid,name:me.name||"",type:tab,jobTitle:F.t,reward:rate(tab),proof:Object.values(d)[0],data:d,status:"pending",createdAt:serverTimestamp()});
 F.f.forEach(([k])=>$("#f_"+k).value="");okModal("Submitted!","Your submission is under review. Your balance updates as soon as the admin approves it.")}
 async function redeem(){const c=$("#f_cc").value.trim().toUpperCase();if(!c)return toast("Enter a coupon code.");const sn=await getDoc(doc(db,"coupons",c));if(!sn.exists()||!sn.data().active)return toast("Invalid or expired code.");const bonus=+sn.data().bonus;
-try{const b=writeBatch(db);b.set(doc(db,"redeems",c+"_"+U.uid),{uid:U.uid,code:c,createdAt:serverTimestamp()});b.update(doc(db,"users",U.uid),{balance:me.balance+bonus,lastCode:c});await b.commit();$("#f_cc").value="";okModal("Coupon redeemed!","$"+bonus.toFixed(2)+" was added to your balance.")}catch(e){toast("You already used this code.")}}
+try{const b=writeBatch(db);b.set(doc(db,"redeems",c+"_"+U.uid),{uid:U.uid,code:c,createdAt:serverTimestamp()});b.update(doc(db,"users",U.uid),{balance:me.balance+bonus,lastCode:c});b.set(doc(collection(db,"ledger")),{uid:U.uid,amount:bonus,type:"coupon",label:"Coupon code: "+c,createdAt:serverTimestamp()});await b.commit();$("#f_cc").value="";okModal("Coupon redeemed!","$"+bonus.toFixed(2)+" was added to your balance.")}catch(e){toast("You already used this code.")}}
 const NAMES=["Sarah","Michael","Emma","Daniel","Olivia","James","Sophia","Ryan","Grace","Ethan"];
 function isLiveWindow(d=new Date()){const h=d.getHours();return(h>=8&&h<10)||(h>=20&&h<22)}
 function nextWindow(d=new Date()){const h=d.getHours();if(h<8)return"8:00 AM";if(h<20)return"8:00 PM";return"8:00 AM"}
@@ -129,7 +129,7 @@ $("#mn").onclick=()=>{menu=!menu;draw()};
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{tab=b.dataset.go;draw()});
 if($("#ph"))$("#ph").onchange=photo;if($("#sf"))$("#sf").onclick=sendForm;if($("#sh"))$("#sh").onclick=()=>{hf=tab;tab="fhist";draw()};if($("#cpw"))$("#cpw").onclick=()=>{navigator.clipboard?.writeText(cfg[tab+"_pass"]||"");$("#cpw").textContent="COPIED"};
 if($("#rd"))$("#rd").onclick=redeem;
-if($("#claim"))$("#claim").onclick=async()=>{try{await updateDoc(doc(db,"users",U.uid),{balance:me.balance+1,claimed:(me.claimed||0)+1});okModal("Bonus claimed!","$1.00 was added to your balance.")}catch(e){toast("Could not claim. Try again.")}};
+if($("#claim"))$("#claim").onclick=async()=>{try{await updateDoc(doc(db,"users",U.uid),{balance:me.balance+1,claimed:(me.claimed||0)+1});await addDoc(collection(db,"ledger"),{uid:U.uid,amount:1,type:"bonus",label:"Target bonus claim",createdAt:serverTimestamp()});okModal("Bonus claimed!","$1.00 was added to your balance.")}catch(e){toast("Could not claim. Try again.")}};
 if($("#snd"))$("#snd").onclick=send;$("#f_msg")?.addEventListener("keydown",e=>{if(e.key=="Enter")send()});$("#f_msg")?.addEventListener("input",typingPing);
 document.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{stars=+b.dataset.st;draw()});if($("#rvb"))$("#rvb").onclick=sendReview;
 document.querySelectorAll("[data-fl]").forEach(b=>b.onclick=()=>flip(+b.dataset.fl));if($("#nxt"))$("#nxt").onclick=()=>{newRound();draw()};
